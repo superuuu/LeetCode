@@ -1,0 +1,35 @@
+<?php
+
+1、Redis 的基本数据类型
+    * String
+    * List
+    * Hash
+    * Set
+    * Zset
+
+2、常用命令
+ 1) String  计数器
+    * set k v
+    * get k
+    * set k v ex exTime
+ 2) List        用于实现队列等，保存评论lpush，lrange取最新评论等
+    * Lpush k v v v v...        从左侧压入多个元素
+    * Rpop k                    从表位移除并返回一个元素
+    * llen                      返回列表长度
+    * lrange k start end        获取列表指定范围内元素
+ 3) Hash  用于存储对象，如用户信息、商品信息等
+    * hset k field v
+    * hget k field
+    * hdel k filed
+    * hgetall k
+    * hkeys k
+    * hvals k
+ 4) Set  无序， zset有序
+    * sadd k member member
+    * scard                     返回几个元素个数
+    * sismember k member        判断指定元素是否在集合内
+    * smembers k                获取指定集合k中的所有元素
+    * sinter k1 k2              返回指定集合间的交集
+    * sunion k1 k2              返回指定集合的并集
+    * sdiff k1 k2               返回指定集合的差集
+

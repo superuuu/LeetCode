@@ -1,0 +1,6 @@
+SQL基础
+
+* A inner join B  取交集
+* A left join B   取A全部，B没有为null
+* A rider join B  取B全部，A没有为null
+* A full outer join B 取并集，彼此没有的为null

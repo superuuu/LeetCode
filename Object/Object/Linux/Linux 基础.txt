@@ -1,0 +1,11 @@
+1、查看cpu盒数、查看内存剩余
+    * cat /proc/cpuinfo
+    * cat /proc/meminfo
+2、如何查看哪个进程在监听80端口？
+    * isof -i:80
+    * netstat -tunip | grep 80
+    * netstat -an 查看当前系统端口
+3、查看文件
+    * more 百分比查看
+    * less 分页查看
+    * tail 按指定行数查看

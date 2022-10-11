@@ -1,0 +1,23 @@
+概念
+    分布式锁是指所有需要的线程都去获得同一把锁，但只有一个线程可以成功获得锁
+
+    Redis的set k v命令可以设置带NX参数命令，是一个原子性加锁命令，当前key未被上锁时会加锁并返回成功，否则返回失败
+
+    关键：
+        * 获得锁后执行对应业务，然后显示删除锁
+        * 如果还未执行到删除锁的逻辑就中断程序岂不是死锁了？  答：给锁加过期时间 expire k expireTime
+        * 如果还未执行设置过期时间就中断程序还会死锁    答： set k v ex expireTime nx
+
+    伪代码
+
+    $redis = new Redis();
+    $getLock = $redis->set('key', 'value', 'ex', 300, 'nx');
+    if($getLock) {
+        try{
+            // do....
+        }catch(Exception $e){
+            $redis.del('key');
+        }
+    }else{
+        return false;
+    }

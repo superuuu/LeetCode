@@ -1,0 +1,27 @@
+Redis 过期键的删除策略（淘汰策略、替换机制）
+
+内存淘汰策略
+    1、不进行数据淘汰的策略 noeviction
+    2、进行数据淘汰的策略
+        a : 在设置了过期时间的数据中进行淘汰
+            *:volatile-lru
+            *:volatile-random
+            *:volatile-ttl
+            *:volatile-lfu
+        B : 在所有数据中进行淘汰
+            *:allkeys-lru
+            *:allkeys-lfu
+            *:allkeys-random
+
+/** Redis 3.0 之前默认是volatile-lru  3.0及以后默认为noevction机制 */
+
+* noevction 机制
+    当Redis的内存使用空间超过maxmemory时，noevction机制不会淘汰数据，而是有新的写请求不再处理，直接返回错误
+
+/** volatile-lru、volatile-lfu、volatile-random、volatile-ttl */
+    * volatile-ttl：在设置了过期时间的key中，根据到期时间先后进行删除，到期越早越先被删除
+    * volatile-random：字面意思，在设置了过期时间的键值对中，随机删除
+    * volatile-lru：根据lru算法进行删除  最早未被使用到的进行删除
+    * volatile-lfu：根据lfu算法进行删除  一段时间内使用次数最少的进行删除
+
+

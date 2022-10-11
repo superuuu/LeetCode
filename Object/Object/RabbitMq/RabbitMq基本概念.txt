@@ -1,0 +1,27 @@
+1、 AMQP Advanced Message Queuing Protocol (高级消息队列协议)
+2、 优点
+    在分布式系统下具备异步、削峰、负载均衡等高级功能
+    拥有持久化机制
+    实现生产者和消费者之间的解耦
+    在高并发场景下，可以将一些同步访问变为串行访问从而减缓数据库压力
+
+3、使用场景
+    服务间异步通信
+    定时任务
+    顺序消费
+    请求削峰
+
+4、构成
+    Publisher：消息的生产者，也是向交换机发布消息的客户端程序
+    Exchange：(交换器)用来接受生产者的消息，并将消息路由给服务器中的队列
+    Binding：绑定，根据路由键将交换机和队列绑定起来
+    Queue：消息队列，用于存放消息；一个消息可以路由到一个或是多个队列中，直到消费者将其取走
+    Channel：信道，基于TCP连接的虚拟连接，AMQP的发布消息、订阅消息等动作都是通过信道完成的，因为TCP的建立和销毁都很耗费资源
+        所以引入信道的概念来复用一个TCP连接
+    Consumer：消费消息的消费者
+
+5、交换器类型 headers、direct、fanout、topic
+    * headers: headers交换器匹配AMQP消息的headers而不是路由键，效率低下基本不用
+    * direct: 消息中的路由键routing key 如果和Binding中的bingding key一致就路由到对应的消息队列中，是完全匹配
+    * fanout：广播分发，fanout类型交换器会将消息分发到所有绑定的队列中
+    * topic：topic交换器是根据模式匹配进行消息分发，通过routingKey 和 bindingKey进行匹配

@@ -1,0 +1,12 @@
+1、WAL技术  write Ahead Logging
+
+** 一条记录更新时，Innodb是将修改记录到readLog中并更新内存，在合适的时间点将这个操作的记录写到磁盘
+    * 写redoLog也是写磁盘，不同的是写redoLog是顺序写，只是在redolog文件中追加不需要寻址
+
+2、ReadDo Log 重做日志，保证数据库宕机后数据恢复不丢失， crash safe能力
+3、Bin Log 归档日志(mysql server层)
+
+4、redoLog、binLog的区别
+    * redo log 是Innodb存储引擎特有的，binLog是mysql server层的日志，所有引擎均可使用
+    * redo log 是物理日志，哪页哪行哪个字段被改成了什么值， bin log是逻辑日志
+    * read log 是循环写，空间固定会用完；bin log 是追加写入，当文件达到指定大小后会重新写新文件，不会被覆盖
