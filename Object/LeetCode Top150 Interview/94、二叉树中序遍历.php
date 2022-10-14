@@ -63,3 +63,30 @@ class Solution94_1 {
         return $this->data;
     }
 }
+
+// 迭代 中序遍历，先左后跟再右
+// 根节点入栈，然后一直寻找左节点，找到左节点后找左节点的左节点，直到为空
+// 为空后，弹出栈顶节点元素，返回其值；压入节点右子节点
+class Solution_94_3
+{
+    function inorderTraversal($root) {
+        if($root === null){
+            return [];
+        }
+        $res = [];
+        $stack = new SplStack();
+        //$stack->push($root);
+        $cur = $root;
+        while($cur || $stack->count()){
+            if($cur != null){
+                $stack->push($cur);
+                $cur=$cur->left;
+            }else{
+                $cur = $stack->pop();
+                $res[] = $cur->val;
+                $cur = $cur->right;
+            }
+        }
+        return $res;
+    }
+}
