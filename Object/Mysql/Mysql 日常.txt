@@ -1,0 +1,58 @@
+1、MySQL 执行count(*)
+    == Myisam 是有字段就当前表内的数据量，前提：select count(1) from table; 不加条件的查询
+    == Innodb 因为多版本并发控制，执行count()时是一行一行数的，B+树叶子节点存储整行数据，二级索引树叶子节点存储主键ID，所以会找比较小的二级索引树去数
+
+    * MyISAM count*很快，但是不支持事务
+    * show table status  (TABLE_ROWS) 不准，误差能到到50%
+    * Innodb count* 准，但是性能不好
+
+    Attention：count(field) 统计出来的是 field !== null 的列
+
+    执行效率 ： count(field) < count(主键ID) < count(1) == count(*)
+
+2、一条order by 语句的分析
+    表结构：CREATE TABLE `t` (
+     `id` int(11) NOT NULL,
+     `city` varchar(16) NOT NULL,
+     `name` varchar(16) NOT NULL,
+     `age` int(11) NOT NULL,
+     `addr` varchar(128) DEFAULT NULL,
+     PRIMARY KEY (`id`),
+     KEY `city` (`city`)) ENGINE=InnoDB;
+
+     查询条件：查询城市是“杭州”的所有人名字，并且按照姓名排序返回前 1000 个人的姓名、年龄。
+     Sql：select city,name, age from t where city='杭州' order by name limit 1000;
+分析
+explain sql, key : city , extra using fileSort  // 使用到city索引   using fileSort表示需要排序
+
+    (全字段排序)
+    * 根据city索引找到满足条件的行，根据ID去主键索引上找到整行数据，取出city、name、age三个字段放入sort buffer中
+    * 根据city索引再去寻找满足条件的行，重复上面的步骤，直到数据全部查到
+    * 在sort buffer中，根据排序字段name进行排序，排序后返回前1000条给客户端
+
+    == 排序是否在内存中完成，取决于排序所需要的内存空间和sort_buffer_size 配置，如果所需空间小于配置空间，在内存中进行；否则借助磁盘临时文件辅助排序
+    == 可以通过查看OPTIMIZER_TRACE的结果来确认是否使用了临时文件，number_of_tmp_files:xx 临时文件数
+    == 临时文件排序，可以理解为单次排序内存大小为sort_buffer_size, 配置越小，所需临时文件数越多
+
+
+    (RowId排序)
+    背景：如果返回字段很多，sort_buffer 中存放过多的字段就会导致存放的数据行数变少，所需要的临时文件数更多导致性能变差，so 如果排序单行数据的长度(字段数太多)太大怎么办？
+    --Mysql怎么判断单行数据长度太长？ max_length_for_sort_data: 16(字节)
+    --如果单行长度大于这个设置，就会采用新的算法进行排序
+
+    * 初始化sort_buffer 空间，从city索引上取第一个满足city=杭州的ID；根据ID从主键索引取name、id字段(此处是第一次回表)放入sort_buffer中
+    * 重复第一步直到取完所有数据，在sort_buffer中根据name字段进行排序，取前1000行，并按照主键ID去取(此处是第二次回表)city、name、age三个字段返回给客户端
+
+两种排序方式比对结论
+    mysql 认为，内存够用即使用内存，尽量减少磁盘访问
+    Innodb不会优先选择RowId排序，因为其多次回表会增加磁盘IO
+
+问：所有都需要排序吗？有没有可能不需要排序？
+    那必须的
+    上面的索引改造成 index city_name('city', 'name') 查询时只要满足city=杭州 的记录，name就是满足天然有序的了
+    * 从city_name索引上找到city=杭州的记录，根据主键ID去主键索引取出行数据，将name、city、age作为返回结果直接返回
+    * 重复上一步骤，直到取到所有数据
+
+    == 该过程由于不需要排序，所以扫描行数就是1000次(假设t中city=杭州的数量>1000)
+
+    (扩展：再优化，减少回表，联合索引增加age列，避免回表，视情况判断了，不能一味扩充)
