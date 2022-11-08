@@ -18,6 +18,14 @@
         == consumer的位移和分区内的位移不是一个概念，但是名字都是offset， 消费者端记录的位移是下一条要消费的消息的offset
     3) Broker
         设置参数 min_insync_replicas > 1 ，控制消息至少被写入n个副本才认为是已提交
+        顺丰同城当前线上kafka配置， ack=all，min_insync_relpicas=2
+
+2.1 顺丰同城线上kafka配置
+    1、ack=all  所有副本都收到消息才认为消息写入成功
+    2、sync=true 同步提交偏移量
+    3、unclean.leader.election.enable=false  控制哪些broker可以竞选分区leader，如果落后leader太多的话被选为leader会造成数据丢失
+    4、min_insync_replicas=2 最少2个副本写入成功才认为消息写入成功
+    5、Replication.factor=3 分区副本数3
 
 3、位移提交
     1)因为consumer可以消费多个分区，所以位移提交是分区粒度的，kafka的位移提交十分灵活，即可随意提交位移offset，但是后果是造成消息丢失、重复消费等
