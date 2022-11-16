@@ -18,9 +18,9 @@
     * 持久化后，物理上是写在磁盘的
 
     redo log写入策略  innodb_flush_log_at_rx_commit
-    * 0 每次事务提交redo log都写入到redo log buffer中 (只写内存，丢数据可能性较大)
+    * 0 每次事务提交redo log都写入到redo log buffer中 (只写内存，丢数据可能性较大)  后台线程每秒会将数据写入page cache中，再调用fsync写入磁盘
     * 1 每次事务提交，都持久化到磁盘  (数据不丢失，但是性能较差)
-    * 2 每次事务提交，都写到page cache中  (数据库异常重启不丢失数据，主机断电会丢失，写入速度较快)
+    * 2 每次事务提交，都写到page cache中  (数据库异常重启不丢失数据，主机断电会丢失，写入速度较快) 后台线程每秒写入磁盘一次
 
 3、Mysql 备库设置为只读，不会影响主从同步吗？
     不会，主从同步数据的线程为superAdmin权限，不受readonly限制

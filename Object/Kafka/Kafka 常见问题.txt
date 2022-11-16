@@ -6,7 +6,7 @@
     * consumer的pull模式
 
     * 优点：下游可以根据自身消费水平去拉取消息；而不是push模式下broker进行消息推送，下游消费能力过低可能积压，消费速率快推送慢可能导致性能浪费
-    * 缺点：当broker无消息时，consumer也会一直轮询去拉取消息
+    * 缺点：当broker无消息时，consumer也会一直轮询去拉取消息  可以设置timeout参数
 
 2、kafka维护消息状态的跟踪方法
 
@@ -14,7 +14,7 @@
     zookeeper 用于集群中节点间的通信，leader的检测，节点的状态判断、偏移量提交等工作
 
 4、kafka判断一个节点还活着的有那两个条件？
-    * 节点必须维护和Zokeeper链接，zookeeper通过心跳机制检测节点连接是否正常
+    * 节点必须维护和Zookeeper链接，zookeeper通过心跳机制检测节点连接是否正常
     * 如果节点是个follower，他必须能及时的同步leader的写操作，延时不能太久
 
 5、讲一讲 kafka 的 ack 的三种机制(Kafka 如何保证数据不丢失？ Ack机制)
@@ -37,9 +37,10 @@
 
 
 6、kafka 分布式（不是单机）的情况下，如何保证消息的顺序消费?
-    * kafka发送消息时可以指定Topic、Key和Partition，Partition是由一个write ahead log(预写日志)组织的，将一些列的消息发送到同一个partition中，
+    * kafka发送消息时可以指定Topic、Key和Partition，Partition是由一个write ahead log(预写日志wal)组织的，将一些列的消息发送到同一个partition中，
       kafka保证一个partition是有一个消费者消费的，所以可以保证顺序性消费
     * 也可以指定Key，同一个Key会写入到同一个Partition中，也可保证顺序消费
+    == 顺丰同城 通过指定消息Key来保证消息的顺序消费
 
 6.1、插入问题：follower和leader出现故障，怎么保证数据的一致性？
     * follower故障 当一个follower出现故障时，会被临时踢出ISR集合，待follower恢复后，follower会读取本地磁盘记录的HW，并将Log文件大于HW部分的日志删掉，
@@ -81,7 +82,8 @@
     * 消费者主动取消订阅
 
     // rebalance过程
-    * 所有成员向组协调器申请入组，一旦所有成员都发送了请求，组协调器会从中选择一个leader，并将消息和订阅信息都发送给leader
+    * 找到组协调器 消费者提交的offset提交到哪个分区，那么这个分区的leader所在的broker就是这个消费者组的组协调器(group coordinator)
+    * 所有成员向组协调器(group coordinator)申请入组，一旦所有成员都发送了请求，组协调器会从中选择一个leader(通常是第一个加入的consumer)，并将消息和订阅信息都发送给leader
     * leader开始分配哪些consumer消费哪些topic下的partition，分配完成后将信息发送给组协调器
     * 组协调器将分配信息发布给各个consumer，这样消费者就知道自己该处理那部分信息
 
@@ -91,8 +93,8 @@
     * sticky(粘性)：分区分配尽可能均匀；分配尽可能和上一次相同； 前两种冲突时，第一点优先级最高
 
 13、Kafka 中的ISR(InSyncRepli)、OSR(OutSyncRepli)、AR(AllRepli)代表什么？
-     * ISR 和leader同步相差10s以内的follower合集
-     * OSR 和leader同步相差10s以上的follower合集
+     * ISR 和leader同步相差10ms以内的follower合集
+     * OSR 和leader同步相差10ms以上的follower合集
      * AR 全部follower
 14、Kafka 中的HW、LEO等分别代表什么？
     * HW 高水位，消费只能拉取到这个offset之前的数据
