@@ -31,12 +31,63 @@ lRUCache.get(4);    // 返回 4
 
  */
 
+class NodeStruct
+{
+    public $key;
+    public $val;
+    public $pre = null;
+    public $next = null;
+
+    function __construct($key=0, $value=0) {
+        $this->key = $key;
+        $this->val = $value;
+    }
+}
+
+class DoubleNode
+{
+    private $head;
+    private $tail;
+
+    function __construct() {
+        $this->head = new NodeStruct();
+        $this->tail = new NodeStruct();
+
+        $this->head->next = $this->tail;
+        $this->tail->pre  = $this->head;
+    }
+
+    function delNode(NodeStruct $node) {
+        $node->pre->next = $node->next;
+        $node->next->pre = $node->pre;
+    }
+
+    function addToHead(NodeStruct $node) {
+        $node->pre = $this->head;
+        $node->next = $this->head->next;
+        $this->head->next->pre = $node;
+        $this->head->next = $node;
+    }
+
+    function delTail() {
+        $this->tail->pre->next = null;
+        $this->tail->pre = null;
+    }
+
+}
+
 class LRUCache {
+    private $size = 0;
+    private $capacity = 0;
+    private $map = [];
+    private $doubleNode = null;
+
     /**
      * @param Integer $capacity
      */
     function __construct($capacity) {
-
+        $this->capacity = $capacity;
+        $this->doubleNode = new DoubleNode();
     }
 
     /**
@@ -44,7 +95,11 @@ class LRUCache {
      * @return Integer
      */
     function get($key) {
-
+        if(isset($this->map[$key])) {
+            $this->recently($this->map[$key]);
+            return $this->map[$key]->val;
+        }
+        return -1;
     }
 
     /**
@@ -53,7 +108,24 @@ class LRUCache {
      * @return NULL
      */
     function put($key, $value) {
+        if (!isset($this->map[$key])) {
+            $newNode = new NodeStruct($key, $value);
+            $this->doubleNode->addToHead($newNode);
+            $this->map[$key] = $newNode;
+            $this->size +=1;
+            if($this->size > $this->capacity) {
+                $this->doubleNode->delTail();
+            }
+            return;
+        }
+        $node = $this->map[$key];
+        $node->value = $value;
+        $this->recently($node);
+    }
 
+    function recently(NodeStruct $node) {
+        $this->doubleNode->delNode($node);
+        $this->doubleNode->addToHead($node);
     }
 }
 

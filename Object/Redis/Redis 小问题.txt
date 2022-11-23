@@ -1,0 +1,7 @@
+1、线上redis有1亿个key， 从中找出前缀是xxx的key，怎么办？
+    keys 'xxx*'
+    == 问题：keys扫描的话在线上会造成主线程的阻塞，对象上服务有较大影响
+    == solve scan  scan 0 xxx* ，通过scan命令来查找，不阻塞主线程，返回数据中可能存在部分重复，客户端进行去重即可
+
+2、使用redis实现延迟队列
+   使用sortedset数据结构，使用时间戳做score， 消息内容作为key，生产者使用zadd生产消息，消费者使用zrangbyscore 轮询

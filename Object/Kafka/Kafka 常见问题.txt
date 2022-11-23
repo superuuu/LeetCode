@@ -23,7 +23,7 @@
         b:添加异步回调函数来监听发送结果，针对失败的采取对应的措施
         c:producer本身提供了retries机制，因为网络或是broker等问题发送失败会进行重试
     2)broker
-         => kafka的ack机制有三个值，1，,0 ，-1
+         => kafka的ack机制有三个值，1(all)，,0 ，-1
         * 1(默认) Producer收到一个分区leader写入成功的消息就认为消息发送成，如果此时leader所在broker宕机，消息丢失
         * 0 Producer只发送一次消息，不管成功与失败
         * -1 Producer收到所有分区写入成功的消息才认为消息发送成功

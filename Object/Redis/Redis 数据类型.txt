@@ -24,7 +24,7 @@
     * hgetall k
     * hkeys k
     * hvals k
- 4) Set  无序， zset有序
+ 4) Set  无序，
     * sadd k member member
     * scard                     返回几个元素个数
     * sismember k member        判断指定元素是否在集合内
@@ -32,4 +32,4 @@
     * sinter k1 k2              返回指定集合间的交集
     * sunion k1 k2              返回指定集合的并集
     * sdiff k1 k2               返回指定集合的差集
-
+ 5)zset有序   适用于根据某个字段进行排序的场景，如礼物排行榜等
