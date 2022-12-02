@@ -9,7 +9,7 @@
     sync_binlog => n n个事务提交后才会写磁盘
 
     == 当磁盘IO是瓶颈的时候，可以适当调大sync_binlog 参数来提升性能，但是当容错率很低时，必须设置为 1
-    == 通常设置为 100 - 1000 之间的值，如果异常宕机，丢失的是近N次失误的binlog
+    == 通常设置为 100 - 1000 之间的值，如果异常宕机，丢失的是近N次事务的binlog
 
 2、redoLog的写入机制
     事务执行过程中，redo log是写入到redo log buffer中，redo log的三种可能状态(redo log写入buffer和page cache 速度都很快，持久化写入磁盘就慢了很多了)
@@ -84,3 +84,7 @@
     4) 备库改为可读可写状态，即read_only = false
     5) 业务请求切到新主库(原备库)
     == 日常使用，建议采取可靠性优先原则
+
+10、分布式事务的一致性
+    a: 两阶段提交
+    b: TCC协议 (Try-Confirm-Cancel)

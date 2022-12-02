@@ -6,7 +6,7 @@
 1、Http请求报文构成
     请求行 + 请求头 + 空格 + 请求体
 
-    1) 请求行由(get 2m   post 4g) 请求方法、url、 http协议三部分构成
+    1) 请求行由请求方法、url、 http协议三部分构成
     2) 请求头由host、connection等组成
 
 2、Http响应报文构成

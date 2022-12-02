@@ -1,0 +1,25 @@
+《kafka日常》中提到的ack，这里再扩充下笔记
+/* producer生产消息发送给broker后，broker会返回给producer ack确认，(类似http的三次握手)producer 根据ack来判断是否成功是否需要重发消息，
+   但是其无法知道是因为何种原因导致失败，因此producer会有如下三种语义 */
+
+1、At-Least-Once
+  1) 当ack=all时，如果broker返回ack，producer认为消息发送成功
+  2) 如果没有返回ack或是报错，producer认为消息没有写入kafka，如果broker在发送ack之前报错但是消息成功写入了，此时producer会再次请求，导致消息重复写入
+2、At-Most-Once
+  当ack=none时即不重试，则消息最终可能没能写入kafka导致消息丢失
+3、Exactly-once
+  即当消息无论被重复发送多少次，kafka只会写入一次(听起来真是very nice的方案呢)
+
+/* 那么，上面的3该怎么实现呢？ */
+
+答案：通过At-Least-Once 和 Broker的幂等性来实现
+
+1、At-Least-Once 只需要设置ack=all即可
+2、broker的幂等性相对复杂
+    1) producer 可以设置enable.idompotence = true 来开启幂等性
+    2) 开启幂等性之后，kafka会为每个producer分配一个唯一的PID，在producer向kafka发送消息时，会形成PID、topic、partition、sequenceNumber来唯一标识一条消息，sequenceNumber从0开始自增
+        a: 当producer发出的消息序号比broker维护的序号大1以上时，说明有消息丢失，报错
+        b: 当producer发出的消息序号小于broker维护的序号时，说明消息重复写入
+
+<! 上面这一坨其实可以理解为 Kafka 的Producer和Broker如何保证消息不丢失、不重复 !>
+<! 下面这一坨是 Kafka如何保证数据的一致性和可靠性 !>

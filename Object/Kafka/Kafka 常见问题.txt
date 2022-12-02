@@ -37,7 +37,7 @@
 
 
 6、kafka 分布式（不是单机）的情况下，如何保证消息的顺序消费?
-    * kafka发送消息时可以指定Topic、Key和Partition，Partition是由一个write ahead log(预写日志wal)组织的，将一些列的消息发送到同一个partition中，
+    * kafka发送消息时可以指定Topic、Key和Partition，Partition是由一个write ahead log(预写日志wal)组织的，将一系列的消息发送到同一个partition中，
       kafka保证一个partition是有一个消费者消费的，所以可以保证顺序性消费
     * 也可以指定Key，同一个Key会写入到同一个Partition中，也可保证顺序消费
     == 顺丰同城 通过指定消息Key来保证消息的顺序消费

@@ -5,3 +5,6 @@
 
 3、fast-cgi 是cgi的升级，启动一个master进行配置信息加载，在启动多个worker负责处理请求，当worker不够用时会动态的增加，空闲时再回收
     php-fpm用于管理fast-cgi创建主进程，将请求转发给worker处理
+
+
+    ！！！ fast cgi是协议规范，php-fpm是fast-cgi的实现，就是基于php语言实现的fast-cgi进程管理器

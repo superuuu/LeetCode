@@ -36,5 +36,7 @@
 
 5、select * from t where id = 1 for update;  select * from t where id = 1 share in mode;  均为当前读
 
-
+6、RR隔离级别下幻读的问题
+    1、在RR隔离级别下，如果使用的是快照读，那么幻读的问题是被解决了
+    2、当前读是存在问题的，解决方式是next-key-lock(是行锁和间隙锁的组合)， 会锁住指定行和间隙
 
